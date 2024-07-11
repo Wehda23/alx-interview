@@ -6,7 +6,8 @@ File contains function minOperations
 
 def minOperations(n: int) -> int:
     """
-    Calculates the fewest number of operations needed to result in exactly n H characters in the
+    Calculates the fewest number of operations needed
+    to result in exactly n H characters in the
     file
 
     Args:
