@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Module contains function to unlockboxs"""
 
+
 def canUnlockAll(boxes) -> bool:
     """Function to unlock all boxes in a list of boxes"""
     n = len(boxes)
