@@ -1,39 +1,58 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
-Log parsing
+Log Parsing Script
 """
 
 import sys
 
-if __name__ == '__main__':
 
-    filesize, count = 0, 0
-    codes = ["200", "301", "400", "401", "403", "404", "405", "500"]
-    stats = {k: 0 for k in codes}
+def print_stats(stats: dict, total_size: int) -> None:
+    """
+    Print the accumulated statistics and total file size.
+    """
+    print("File size: {}".format(total_size))
+    for code, count in sorted(stats.items()):
+        if count:
+            print("{}: {}".format(code, count))
 
-    def print_stats(stats: dict, file_size: int) -> None:
-        print("File size: {:d}".format(filesize))
-        for k, v in sorted(stats.items()):
-            if v:
-                print("{}: {}".format(k, v))
+
+def main():
+    """
+    Main function to process log lines from standard input.
+    """
+    total_size, line_count = 0, 0
+    status_codes = ["200", "301", "400", "401", "403", "404", "405", "500"]
+    statistics = {code: 0 for code in status_codes}
 
     try:
         for line in sys.stdin:
-            count += 1
-            data = line.split()
+            line_count += 1
+            parts = line.split()
+            if len(parts) < 2:
+                continue
+
+            # Update status code statistics
+            status_code = parts[-2]
+            if status_code in statistics:
+                statistics[status_code] += 1
+
+            # Update total file size
             try:
-                status_code = data[-2]
-                if status_code in stats:
-                    stats[status_code] += 1
-            except BaseException:
+                total_size += int(parts[-1])
+            except ValueError:
                 pass
-            try:
-                filesize += int(data[-1])
-            except BaseException:
-                pass
-            if count % 10 == 0:
-                print_stats(stats, filesize)
-        print_stats(stats, filesize)
+
+            # Print statistics every 10 lines
+            if line_count % 10 == 0:
+                print_stats(statistics, total_size)
+
+        # Final statistics printout
+        print_stats(statistics, total_size)
+
     except KeyboardInterrupt:
-        print_stats(stats, filesize)
+        print_stats(statistics, total_size)
         raise
+
+
+if __name__ == "__main__":
+    main()
