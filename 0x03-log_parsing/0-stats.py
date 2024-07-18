@@ -1,80 +1,51 @@
 #!/usr/bin/python3
 """
-File that parses logs status
+log parsing
 """
+
 import sys
-import signal
+import re
 
 
-total_size = 0
-status_codes_count = {
-    "200": 0,
-    "301": 0,
-    "400": 0,
-    "401": 0,
-    "403": 0,
-    "404": 0,
-    "405": 0,
-    "500": 0,
-}
-line_count = 0
-
-
-def print_stats():
+def output(log: dict) -> None:
     """
-    Function to print status
+    helper function to display stats
     """
-    global total_size, status_codes_count
-    print(f"File size: {total_size}")
-    for code in sorted(status_codes_count.keys()):
-        if status_codes_count[code] > 0:
-            print(f"{code}: {status_codes_count[code]}")
+    print("File size: {}".format(log["file_size"]))
+    for code in sorted(log["code_frequency"]):
+        if log["code_frequency"][code]:
+            print("{}: {}".format(code, log["code_frequency"][code]))
 
 
-def signal_handler(sig, frame):
-    """
-    SIGNAL HANDLER
-    """
-    print_stats()
-    sys.exit(0)
+if __name__ == "__main__":
+    regex = re.compile(
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - \[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\] "GET /projects/260 HTTP/1.1" (.{3}) (\d+)'
+    )  # nopep8
 
+    line_count = 0
+    log = {}
+    log["file_size"] = 0
+    log["code_frequency"] = {
+        str(code): 0 for code in [200, 301, 400, 401, 403, 404, 405, 500]
+    }
 
-signal.signal(signal.SIGINT, signal_handler)
-
-for line in sys.stdin:
     try:
-        parts = line.split()
-        if len(parts) < 9:
-            continue
+        for line in sys.stdin:
+            line = line.strip()
+            match = regex.fullmatch(line)
+            if match:
+                line_count += 1
+                code = match.group(1)
+                file_size = int(match.group(2))
 
-        ip, dash, date, request, status_code, file_size = (
-            parts[0],
-            parts[1],
-            parts[3],
-            parts[5],
-            parts[8],
-            parts[9],
-        )
-        if (
-            dash != "-"
-            or not date.startswith("[")
-            or not request.startswith('"GET')
-            or not status_code.isdigit()
-            or not file_size.isdigit()
-        ):
-            continue
+                # File size
+                log["file_size"] += file_size
 
-        total_size += int(file_size)
-        if status_code in status_codes_count:
-            status_codes_count[status_code] += 1
+                # status code
+                if code.isdecimal():
+                    log["code_frequency"][code] += 1
 
-        line_count += 1
-        if line_count % 10 == 0:
-            print_stats()
-
-    except Exception:
-        continue
-
-
-# Print final stats if no interruption
-print_stats()
+                if line_count % 10 == 0:
+                    output(log)
+    finally:
+        output(log)
