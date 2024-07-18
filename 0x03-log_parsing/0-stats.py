@@ -21,6 +21,9 @@ line_count = 0
 
 
 def print_stats():
+    """
+    Function to print status
+    """
     global total_size, status_codes_count
     print(f"File size: {total_size}")
     for code in sorted(status_codes_count.keys()):
@@ -29,6 +32,9 @@ def print_stats():
 
 
 def signal_handler(sig, frame):
+    """
+    SIGNAL HANDLER
+    """
     print_stats()
     sys.exit(0)
 
