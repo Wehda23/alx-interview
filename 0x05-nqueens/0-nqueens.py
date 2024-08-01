@@ -1,7 +1,6 @@
 #!/usr/bin/python
 """
 Python code that produces number of queens.
-
 print every possible solution to the problem
 """
 import sys
@@ -13,10 +12,10 @@ def backtrack(r, n, cols, pos, neg, board):
     """
     if r == n:
         res = []
-        for l in range(len(board)):
-            for k in range(len(board[l])):
-                if board[l][k] == 1:
-                    res.append([l, k])
+        for position in range(len(board)):
+            for k in range(len(board[position])):
+                if board[position][k] == 1:
+                    res.append([position, k])
         print(res)
         return
 
