@@ -1,7 +1,6 @@
 #!/usr/bin/python
 """
 Python code that produces number of queens.
-print every possible solution to the problem
 """
 import sys
 
