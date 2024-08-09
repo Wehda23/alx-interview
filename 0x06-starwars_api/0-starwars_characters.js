@@ -2,14 +2,14 @@
 
 const request = require('request');
 
-const make_request = (arr, i) => {
+const makeRequest = (arr, i) => {
   if (i === arr.length) return;
   request(arr[i], (err, response, body) => {
     if (err) {
       throw err;
     } else {
       console.log(JSON.parse(body).name);
-      make_request(arr, i + 1);
+      makeRequest(arr, i + 1);
     }
   });
 };
@@ -21,7 +21,7 @@ request(
       throw err;
     } else {
       const chars = JSON.parse(body).characters;
-      make_request(chars, 0);
+      makeRequest(chars, 0);
     }
   }
 );
